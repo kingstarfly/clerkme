@@ -11,23 +11,15 @@ datasource db {
     directUrl = env("DATABASE_DIRECT_URL")
 }
 
-model User {
-    id        String       @id @default(uuid())
-    clerkId   String       @unique
-    createdAt DateTime     @default(now())
-    updatedAt DateTime     @updatedAt
-    cases     CaseRecord[]
-}
-
-model Patient {
-    id          String       @id @default(uuid())
-    createdAt   DateTime     @default(now())
-    updatedAt   DateTime     @updatedAt
-    caseRecords CaseRecord[]
-}
-
 model CaseRecord {
-    id                         String   @id @default(uuid())
+    id          String   @id @default(uuid())
+    clerkUserId String   @unique
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    patientIdentifier String
+
+    // The 9 questions
     presentingComplaint        String
     historyPresentingComplaint String
     pastMedicalHistory         String
@@ -37,10 +29,7 @@ model CaseRecord {
     systemicEnquiry            String
     examinationFindings        String
     impressionPlan             String
-    createdAt                  DateTime @default(now())
-    updatedAt                  DateTime @updatedAt
-    user                       User     @relation(fields: [userId], references: [id])
-    userId                     String
-    patient                    Patient  @relation(fields: [patientId], references: [id])
-    patientId                  String
+
+    // Index for clerkUserId
+    @@index([clerkUserId])
 }
