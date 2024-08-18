@@ -1,9 +1,4 @@
-import {
-  type FieldError,
-  type FieldValues,
-  type Path,
-  type UseFormRegister,
-} from "react-hook-form";
+import type {FieldError, FieldValues, Path, UseFormRegister} from "react-hook-form";
 
 interface FormTextAreaProps<T extends FieldValues>
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {

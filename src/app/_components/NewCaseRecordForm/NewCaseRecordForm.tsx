@@ -2,7 +2,8 @@
 
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { z } from "zod";
 import { FormInput } from "./FormInput";
@@ -41,7 +42,7 @@ function NewCaseRecordForm() {
   const createCaseRecord = api.caseRecord.create.useMutation({
     onSuccess: () => {
       toast.success("Case record created successfully");
-      utils.caseRecord.invalidate();
+      utils.caseRecord.invalidate().catch(() => undefined);
       reset(); // Reset form after successful submission
     },
     onError: (error) => {

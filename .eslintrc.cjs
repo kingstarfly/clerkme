@@ -11,31 +11,29 @@ const config = {
     "plugin:@typescript-eslint/stylistic-type-checked",
   ],
   rules: {
-    "@typescript-eslint/array-type": "off",
-    "@typescript-eslint/consistent-type-definitions": "off",
-    "@typescript-eslint/consistent-type-imports": [
-      "warn",
-      {
-        prefer: "type-imports",
-        fixStyle: "inline-type-imports",
-      },
-    ],
     "@typescript-eslint/no-unused-vars": [
       "warn",
-      {
-        argsIgnorePattern: "^_",
-      },
+      { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
     ],
-    "@typescript-eslint/require-await": "off",
+    "@typescript-eslint/consistent-type-imports": [
+      "warn",
+      { prefer: "type-imports", fixStyle: "separate-type-imports" },
+    ],
     "@typescript-eslint/no-misused-promises": [
+      2,
+      { checksVoidReturn: { attributes: false } },
+    ],
+    "@typescript-eslint/no-unnecessary-condition": [
       "error",
       {
-        checksVoidReturn: {
-          attributes: false,
-        },
+        allowConstantLoopConditions: true,
       },
     ],
-    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
+
+    "@typescript-eslint/consistent-type-definitions": "off",
+    "@typescript-eslint/require-await": "off",
   },
 };
 module.exports = config;

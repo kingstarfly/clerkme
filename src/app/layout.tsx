@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 
 import { ClerkProvider } from "@clerk/nextjs";
-import { type Metadata } from "next";
+import type {Metadata} from "next";
 
 import { GeistSans } from "geist/font/sans";
 
