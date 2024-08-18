@@ -6,12 +6,12 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC, TRPCError } from "@trpc/server";
-import superjson from "superjson";
-import { ZodError } from "zod";
+import { TRPCError, initTRPC } from "@trpc/server"
+import superjson from "superjson"
+import { ZodError } from "zod"
 
-import { db } from "@/server/db";
-import { auth } from "@clerk/nextjs/server";
+import { db } from "@/server/db"
+import { auth } from "@clerk/nextjs/server"
 
 /**
  * 1. CONTEXT
@@ -26,13 +26,13 @@ import { auth } from "@clerk/nextjs/server";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  return {
-    db,
-    // Adding clerk auth
-    auth: auth(),
-    ...opts,
-  };
-};
+    return {
+        db,
+        // Adding clerk auth
+        auth: auth(),
+        ...opts,
+    }
+}
 
 /**
  * 2. INITIALIZATION
@@ -42,25 +42,27 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
  * errors on the backend.
  */
 const t = initTRPC.context<typeof createTRPCContext>().create({
-  transformer: superjson,
-  errorFormatter({ shape, error }) {
-    return {
-      ...shape,
-      data: {
-        ...shape.data,
-        zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
-      },
-    };
-  },
-});
+    transformer: superjson,
+    errorFormatter({ shape, error }) {
+        return {
+            ...shape,
+            data: {
+                ...shape.data,
+                zodError:
+                    error.cause instanceof ZodError
+                        ? error.cause.flatten()
+                        : null,
+            },
+        }
+    },
+})
 
 /**
  * Create a server-side caller.
  *
  * @see https://trpc.io/docs/server/server-side-calls
  */
-export const createCallerFactory = t.createCallerFactory;
+export const createCallerFactory = t.createCallerFactory
 
 /**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)
@@ -74,7 +76,7 @@ export const createCallerFactory = t.createCallerFactory;
  *
  * @see https://trpc.io/docs/router
  */
-export const createTRPCRouter = t.router;
+export const createTRPCRouter = t.router
 
 /**
  * Middleware for timing procedure execution and adding an articifial delay in development.
@@ -83,38 +85,38 @@ export const createTRPCRouter = t.router;
  * network latency that would occur in production but not in local development.
  */
 const timingMiddleware = t.middleware(async ({ next, path }) => {
-  const start = Date.now();
+    const start = Date.now()
 
-  if (t._config.isDev) {
-    // artificial delay in dev
-    const waitMs = Math.floor(Math.random() * 400) + 100;
-    await new Promise((resolve) => setTimeout(resolve, waitMs));
-  }
+    if (t._config.isDev) {
+        // artificial delay in dev
+        const waitMs = Math.floor(Math.random() * 400) + 100
+        await new Promise((resolve) => setTimeout(resolve, waitMs))
+    }
 
-  const result = await next();
+    const result = await next()
 
-  const end = Date.now();
-  console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
+    const end = Date.now()
+    console.log(`[TRPC] ${path} took ${end - start}ms to execute`)
 
-  return result;
-});
+    return result
+})
 
 const authMiddleware = t.middleware(async ({ ctx, next }) => {
-  const auth = ctx.auth;
-  if (!auth.userId) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
-  return next({
-    ctx: {
-      ...ctx,
-      auth: {
-        ...auth,
-        // We know that userId is not null here.
-        userId: auth.userId,
-      },
-    },
-  });
-});
+    const auth = ctx.auth
+    if (!auth.userId) {
+        throw new TRPCError({ code: "UNAUTHORIZED" })
+    }
+    return next({
+        ctx: {
+            ...ctx,
+            auth: {
+                ...auth,
+                // We know that userId is not null here.
+                userId: auth.userId,
+            },
+        },
+    })
+})
 
 /**
  * Public (unauthenticated) procedure
@@ -123,7 +125,7 @@ const authMiddleware = t.middleware(async ({ ctx, next }) => {
  * guarantee that a user querying is authorized, but you can still access user session data if they
  * are logged in.
  */
-export const publicProcedure = t.procedure.use(timingMiddleware);
+export const publicProcedure = t.procedure.use(timingMiddleware)
 export const protectedProcedure = t.procedure
-  .use(timingMiddleware)
-  .use(authMiddleware);
+    .use(timingMiddleware)
+    .use(authMiddleware)
